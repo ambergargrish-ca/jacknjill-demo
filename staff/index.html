@@ -493,6 +493,29 @@ dialog h2 { font-size: 22px; }
   .topbar--staff .tab[aria-current="page"] { background: #fff; color: var(--ink); }
 }
 
+/* ---------- receipts and sales tags ---------- */
+.rcpt-wrap { background: var(--surface-2); border-radius: 14px; padding: 16px; display: grid; place-items: center; }
+.rcpt { width: 100%; max-width: 302px; background: #fff; color: #111; padding: 18px 16px; font: 13px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; box-shadow: var(--shadow-sm); border-radius: 4px; }
+.rcpt hr { border: 0; border-top: 1px dashed #999; margin: 10px 0; }
+.rcpt__c { text-align: center; }
+.rcpt__name { display: block; font-size: 15px; margin-bottom: 2px; }
+.rcpt__title { margin: 10px 0 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.rcpt__row { display: flex; justify-content: space-between; gap: 12px; }
+.rcpt__row span:last-child { text-align: right; white-space: nowrap; }
+.rcpt__mod { color: #555; font-size: 12px; padding-left: 14px; }
+.rcpt__total { font-weight: 700; font-size: 14px; margin-top: 4px; }
+.rcpt .fill { background: #eee; color: #555; }
+#print-area { display: none; }
+.tagger summary { list-style: none; margin-top: 8px; cursor: pointer; display: inline-flex; }
+.tagger summary::-webkit-details-marker { display: none; }
+@media print {
+  @page { size: 80mm auto; margin: 4mm; }
+  body { background: #fff; padding: 0; }
+  body > *:not(#print-area) { display: none !important; }
+  #print-area { display: block; }
+  #print-area .rcpt { box-shadow: none; max-width: none; padding: 0; }
+}
+
 </style>
 </head>
 <body>
@@ -692,14 +715,14 @@ const PHOTO_CREDITS = {
   '1586805608485-add336722759': 'withlovefromchile', '1541167760496-1628856ab772': 'Fahmi Fakhrudin', '1552960226-639240203497': 'takahiro taguchi', '1763993679664-6afaf7ff043d': 'Alexander Van Steenberge'
 };
 TENANTS_SEED.forEach((t) => t.menu.forEach((m) => { m.img = PHOTOS[m.id]; }));
-TENANTS_SEED.forEach((t) => { t.payments = { online: 'Stripe', terminal: 'Windcave' }; });
+TENANTS_SEED.forEach((t) => { t.payments = { online: 'Stripe', terminal: 'Windcave' }; t.gstNo = ''; t.tagPresets = ['Event night', 'Birthday', 'Large group', 'Catering', 'Staff meal', 'Complimentary']; });
 TENANTS_SEED[0].cover = '1552960226-639240203497';
 TENANTS_SEED[1].cover = '1763993679664-6afaf7ff043d';
 
 /* =========================================================
    State and persistence (one viewer's browser only)
    ========================================================= */
-const STORE_KEY = 'kitchenline-demo-v4';
+const STORE_KEY = 'kitchenline-demo-v5';
 const APP = document.documentElement.dataset.app === 'staff' ? 'staff' : 'guest';
 const STAFF = APP === 'staff' ? './' : 'staff/';
 const GUEST = APP === 'staff' ? '../' : './';
@@ -828,7 +851,7 @@ function skeleton(n = 5, row = true) { return `<div aria-busy="true" aria-label=
 
 function newOrder({ source, label, lines, totals, paid, payment, meta }) {
   const t = T(); const no = ++S.seq;
-  const o = { id: 'o' + no, no, tenantId: t.id, branchId: B().id, source, label, lines, totals, status: 'new', created: Date.now(), paid: !!paid, payment: payment || '', meta: meta || {}, events: [] };
+  const o = { id: 'o' + no, no, tenantId: t.id, branchId: B().id, source, label, lines, totals, status: 'new', created: Date.now(), paid: !!paid, payment: payment || '', meta: meta || {}, tags: [], events: [] };
   const srcText = { web: 'Placed online', phone: 'Taken by the phone agent', table: 'Sent from POS' }[source];
   o.events.push({ t: o.created, text: srcText + (paid ? ', paid by ' + payment : '') });
   o.events.push({ t: o.created + 1000, text: 'On the kitchen screen' });
@@ -847,7 +870,7 @@ if (!S || !S.tenants) S = freshState();
 /* =========================================================
    Router: plain #name hashes only
    ========================================================= */
-const ROUTES = APP === 'staff' ? ['pos', 'kitchen', 'hq', 'hq-menu', 'hq-promos', 'hq-reports', 'hq-brand', 'voice'] : ['order', 'book'];
+const ROUTES = APP === 'staff' ? ['pos', 'kitchen', 'hq', 'hq-sales', 'hq-menu', 'hq-promos', 'hq-reports', 'hq-brand', 'voice'] : ['order', 'book'];
 const HOME = APP === 'staff' ? 'pos' : 'order';
 let current = null;
 function route() {
@@ -994,7 +1017,7 @@ function viewTrack() {
       <div class="row row--wrap" style="margin-top:16px"><button type="button" class="btn" data-action="new-order">Start a new order</button></div>
       <p class="small muted" style="margin-top:16px;padding-top:12px;border-top:1px dashed var(--line-2)">Demo tip: open the <a href="${STAFF}#kitchen" target="_blank" rel="noopener">staff kitchen screen</a> in another tab and move this ticket along. This page follows it live.</p>
     </div>
-    <div class="well pad"><div class="row"><h2 class="grow">Receipt</h2>${ic('receipt')}</div>${o.lines.map((l) => `<div class="line"><span>${l.qty} × ${esc(l.name)}</span><span class="price">${money(l.unit * l.qty)}</span>${l.mods.length ? `<span class="line__mods">${esc(l.mods.join(', '))}</span>` : ''}</div>`).join('')}${totalsHTML(o.totals)}<p class="small muted">Paid by ${esc(o.payment)}.</p></div></div>`;
+    <div class="well pad"><div class="row"><h2 class="grow">Receipt</h2>${ic('receipt')}</div>${o.lines.map((l) => `<div class="line"><span>${l.qty} × ${esc(l.name)}</span><span class="price">${money(l.unit * l.qty)}</span>${l.mods.length ? `<span class="line__mods">${esc(l.mods.join(', '))}</span>` : ''}</div>`).join('')}${totalsHTML(o.totals)}<p class="small muted">Paid by ${esc(o.payment)}.</p><button type="button" class="btn btn--block" style="margin-top:14px" data-action="receipt" data-id="${o.id}">${ic('receipt')}Print or save receipt</button></div></div>`;
 }
 
 function openItem(id) {
@@ -1092,6 +1115,7 @@ function posPanel(tb) {
       <div class="row" style="margin-top:12px"><span class="lbl grow">Split between</span><span class="stepper"><button type="button" class="btn btn--icon" data-action="split" data-d="-1" aria-label="Fewer ways">${ic('minus')}</button><output>${S.pos.split}</output><button type="button" class="btn btn--icon" data-action="split" data-d="1" aria-label="More ways">${ic('plus')}</button></span></div>
       ${t.tipping ? tipHTML('tip-pos', S.pos.tipPct) : ''}
       <p style="margin:16px 0" class="small muted">${S.pos.split > 1 ? `${S.pos.split} payments of ${money(each)}` : 'One payment'}.</p><div class="info-list" style="margin:0 0 16px"><div>${ic('dollar')}<span>Sent to the ${esc(t.payments.terminal === 'Bank' ? 'bank EFTPOS' : t.payments.terminal)} terminal. Guest pays by EFTPOS, debit, credit card or phone. Inserted EFTPOS has no transaction fee.</span></div></div>
+      <fieldset style="margin-bottom:16px"><legend>Tag this sale</legend><div class="row row--wrap">${t.tagPresets.map((g) => `<button type="button" class="chip" data-action="pos-tag" data-v="${esc(g)}" aria-pressed="${(S.pos.tags || []).includes(g)}">${esc(g)}</button>`).join('')}</div><p class="help">Channel, payment type, branch and time of day are tagged automatically.</p></fieldset>
       <div id="terminal" aria-live="polite"></div>
       <button type="button" class="btn btn--primary btn--block" data-action="terminal" data-n="${S.pos.split}">${ic('dollar')}Send ${money(each)} to EFTPOS terminal</button>`;
   }
@@ -1125,9 +1149,9 @@ function viewKitchen() {
 
 /* ---------- HQ ---------- */
 function viewHQ() {
-  const tabs = [['Branches', 'hq'], ['Menu', 'hq-menu'], ['Promos', 'hq-promos'], ['Reports', 'hq-reports'], ['Brand and payments', 'hq-brand']];
+  const tabs = [['Branches', 'hq'], ['Sales', 'hq-sales'], ['Menu', 'hq-menu'], ['Promos', 'hq-promos'], ['Reports', 'hq-reports'], ['Brand and payments', 'hq-brand']];
   const t = T();
-  const body = { branches: hqBranches, menu: hqMenu, promos: hqPromos, reports: hqReports, brand: hqBrand }[S.hqTab]();
+  const body = { branches: hqBranches, sales: hqSales, menu: hqMenu, promos: hqPromos, reports: hqReports, brand: hqBrand }[S.hqTab]();
   return `<div class="view-head"><div><h1>Head office</h1><p>${esc(t.name)}, all branches. Changes apply to ordering, POS and the phone agent at once.</p></div></div>
     <nav class="subtabs" aria-label="HQ sections">${tabs.map(([l, h]) => `<a href="#${h}" ${('hq-' + S.hqTab === h || (h === 'hq' && S.hqTab === 'branches')) ? 'aria-current="page"' : ''}>${l}</a>`).join('')}</nav>${body}`;
 }
@@ -1178,6 +1202,8 @@ function hqBrand() {
     <fieldset><legend>Brand colour</legend><div class="swatches">${BRANDS.map((b) => `<button type="button" class="swatch sw-${b}" data-action="brand" data-v="${b}" aria-pressed="${t.brand === b}" aria-label="${b}"></button>`).join('')}</div></fieldset>
     <div class="field"><label for="br-region">Country and tax</label><select class="input" id="br-region" data-change="region">${Object.entries(REGIONS).filter(([k]) => k === 'NZ').map(([k, v]) => `<option value="${k}" ${k === t.region ? 'selected' : ''}>${v.label}</option>`).join('')}</select>
       <p class="help">${reg.taxMode === 'inclusive' ? `Menu prices include ${reg.taxes[0].name}; receipts show the ${reg.taxes[0].name} inside the total.` : `Menu prices exclude tax; ${reg.taxes.map((x) => x.name + ' ' + r2(x.rate * 100) + '%').join(' and ')} is added at checkout.`} Confirm rates with an accountant before launch.</p></div>
+    <div class="field"><label for="br-gst">GST number, printed on receipts</label><input class="input" id="br-gst" inputmode="numeric" placeholder="123-456-789" value="${esc(t.gstNo)}" data-change="gst-no"></div>
+    <div class="field"><label for="br-tags">Sale tags staff can add, comma separated</label><input class="input" id="br-tags" value="${esc(t.tagPresets.join(', '))}" data-change="tag-presets"></div>
     <label class="switch"><input type="checkbox" data-change="tipping" ${t.tipping ? 'checked' : ''}>Ask guests for an optional tip at checkout</label>
     <fieldset><legend>Payments</legend><div class="grid-2"><div class="field"><label for="pay-online">Online, bookings and phone pay links</label><select class="input" id="pay-online" data-change="pay-online">${['Stripe', 'Windcave', 'Airwallex'].map((p) => `<option ${t.payments.online === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div><div class="field"><label for="pay-term">In-store terminal</label><select class="input" id="pay-term" data-change="pay-term">${[['Windcave', 'Windcave EFTPOS'], ['Bank', 'Bank EFTPOS (ANZ, ASB, BNZ, Westpac)'], ['Stripe Terminal', 'Stripe Terminal']].map(([v, l]) => `<option value="${v}" ${t.payments.terminal === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div><p class="help">Each restaurant keeps its own merchant account and rates. Card payments in store go through the restaurant's EFTPOS terminal, so inserted EFTPOS stays free.</p></fieldset>
     <div class="field"><label for="br-domain">Ordering web address</label><input class="input" id="br-domain" placeholder="order.yourrestaurant.co.nz" autocomplete="url"><p class="help">Each licence runs on the restaurant's own domain.</p></div>
@@ -1186,6 +1212,128 @@ function hqBrand() {
     <div class="preview__body stack"><div class="line"><span>A ${money(20)} dish</span><span class="price">${money(sample.total)} at checkout</span></div>
     <p class="small muted">${reg.currency}, GST included · online by ${esc(t.payments.online)} · in store by ${esc(t.payments.terminal === 'Bank' ? 'bank EFTPOS' : t.payments.terminal)}</p>
     <div class="row"><button type="button" class="btn btn--primary">${ic('bag')}Order now</button><button type="button" class="btn">${ic('cal')}Book a table</button></div></div></div></div>`;
+}
+
+
+/* ---------- sales tags ---------- */
+function daypart(ts, t = T()) {
+  const h = +new Intl.DateTimeFormat('en-US', { timeZone: REGIONS[t.region].tz, hour: '2-digit', hourCycle: 'h23' }).format(new Date(ts));
+  return h < 11 ? 'Breakfast' : h < 15 ? 'Lunch' : h < 17 ? 'Afternoon' : h < 21 ? 'Dinner' : 'Late night';
+}
+function payGroup(o) {
+  if (!o.paid) return 'Unpaid';
+  const p = (o.payment || '').toLowerCase();
+  return p.includes('eftpos') ? 'EFTPOS terminal' : p.includes('apple') ? 'Apple Pay' : p.includes('google') ? 'Google Pay' : p.includes('link') ? 'Pay link' : 'Card online';
+}
+function autoTags(o) {
+  const t = S.tenants.find((x) => x.id === o.tenantId) || T();
+  const br = t.branches.find((b) => b.id === o.branchId);
+  const mode = (o.meta && o.meta.mode) || (o.source === 'table' ? 'dine-in' : 'pickup');
+  return [
+    { k: 'channel', v: { web: 'Online', phone: 'Phone AI', table: 'POS' }[o.source] },
+    { k: 'type', v: { pickup: 'Pickup', delivery: 'Delivery', 'dine-in': 'Dine in' }[mode] },
+    { k: 'payment', v: payGroup(o) },
+    { k: 'branch', v: br ? br.name : '' },
+    { k: 'daypart', v: daypart(o.created, t) }
+  ].concat(o.totals.promoNote ? [{ k: 'promo', v: 'Promo ' + o.totals.promoNote }] : []).filter((x) => x.v);
+}
+const allTags = (o) => autoTags(o).map((x) => x.v).concat(o.tags || []);
+
+function hqSales() {
+  const t = T();
+  const os = S.orders.filter((o) => o.tenantId === t.id).sort((a, b) => b.created - a.created);
+  if (!os.length) return `<div class="well">${emptyHTML('receipt', 'No sales yet in this demo', 'Every sale from the website, POS and phone agent lands here, tagged by channel, payment, branch and time of day.', `<a class="btn btn--primary" href="${GUEST}#order" target="_blank" rel="noopener">Open the ordering site</a>`)}</div>`;
+  const filt = S.salesFilter || [];
+  const shown = os.filter((o) => filt.every((f) => allTags(o).includes(f)));
+  const counts = {};
+  os.forEach((o) => allTags(o).forEach((g) => { counts[g] = (counts[g] || 0) + 1; }));
+  const groups = [['Channel', 'channel'], ['Type', 'type'], ['Payment', 'payment'], ['Branch', 'branch'], ['Time of day', 'daypart']];
+  const autoBy = {};
+  os.forEach((o) => autoTags(o).forEach((x) => { (autoBy[x.k] = autoBy[x.k] || new Set()).add(x.v); }));
+  const chip = (g) => `<button type="button" class="chip" data-action="sales-filter" data-v="${esc(g)}" aria-pressed="${filt.includes(g)}">${esc(g)} <span class="muted small">${counts[g] || 0}</span></button>`;
+  const manual = Array.from(new Set(os.flatMap((o) => o.tags || [])));
+  const sum = r2(shown.reduce((a, o) => a + o.totals.total, 0));
+  const gst = r2(shown.reduce((a, o) => a + o.totals.taxes.reduce((b, x) => b + x.amt, 0), 0));
+  return `<div class="well pad stack-s" style="margin-bottom:16px">
+      ${groups.filter(([, k]) => autoBy[k]).map(([l, k]) => `<div class="row row--wrap"><span class="lbl" style="min-width:7rem">${l}</span>${Array.from(autoBy[k]).map(chip).join('')}</div>`).join('')}
+      ${(autoBy.promo || manual.length) ? `<div class="row row--wrap"><span class="lbl" style="min-width:7rem">Your tags</span>${Array.from(autoBy.promo || []).concat(manual).map(chip).join('')}</div>` : ''}
+    </div>
+    <dl class="figures"><div><dt>${ic('receipt')}Sales shown</dt><dd>${shown.length}</dd></div><div><dt>${ic('dollar')}Total</dt><dd>${money(sum)}</dd></div><div><dt>${ic('chart')}GST included</dt><dd>${money(gst)}</dd></div><div><dt>${ic('tag')}Filters</dt><dd style="font-size:16px;font-weight:600;margin-top:16px">${filt.length ? esc(filt.join(' + ')) + ` <button type="button" class="linkish" data-action="sales-clear">Clear</button>` : 'All sales'}</dd></div></dl>
+    <div class="row" style="justify-content:flex-end;margin:4px 0 12px"><button type="button" class="btn" data-action="export-csv">${ic('receipt')}Export CSV for accounting</button></div>
+    <div class="t-wrap"><table class="t t-stack"><thead><tr><th>Order</th><th>Time</th><th>Tags</th><th class="num">Total</th><th><span class="visually-hidden">Actions</span></th></tr></thead><tbody>
+    ${shown.length ? shown.map((o) => `<tr><td><b>#${o.no}</b><div class="small muted">${esc(cap(o.label))}</div></td><td class="muted small">${fmtClock(o.created)}</td>
+      <td><div class="row row--wrap" style="gap:6px">${autoTags(o).map((x) => `<span class="tag tag--sample">${esc(x.v)}</span>`).join('')}${(o.tags || []).map((g) => `<span class="tag tag--gold">${esc(g)}</span>`).join('')}</div>
+        <details class="tagger"><summary class="linkish">Add tag</summary><div class="row row--wrap" style="gap:6px;margin-top:8px">${t.tagPresets.map((g) => `<button type="button" class="chip" style="min-height:36px" data-action="sale-tag" data-id="${o.id}" data-v="${esc(g)}" aria-pressed="${(o.tags || []).includes(g)}">${esc(g)}</button>`).join('')}</div></details></td>
+      <td class="num"><b>${money(o.totals.total)}</b></td><td class="num"><button type="button" class="btn btn--sm" data-action="receipt" data-id="${o.id}">${ic('receipt')}Receipt</button></td></tr>`).join('') : '<tr><td colspan="5" class="muted">No sales match these tags.</td></tr>'}
+    </tbody></table></div>
+    <p class="small muted" style="margin-top:12px">Grey tags are added automatically. Gold tags are added by staff, at the POS when taking payment or here afterwards. Edit the tag list under Brand and payments.</p>`;
+}
+
+function exportCSV() {
+  const t = T();
+  const rows = [['Order', 'Date', 'Time', 'Branch', 'Channel', 'Type', 'Payment', 'Subtotal', 'Discount', 'Delivery', 'GST included', 'Total', 'Tags']];
+  S.orders.filter((o) => o.tenantId === t.id).forEach((o) => {
+    const a = Object.fromEntries(autoTags(o).map((x) => [x.k, x.v]));
+    const d = new Date(o.created);
+    rows.push([o.no, new Intl.DateTimeFormat('en-NZ', { timeZone: R().tz, dateStyle: 'short' }).format(d), fmtClock(o.created), a.branch, a.channel, a.type, a.payment, o.totals.subtotal, o.totals.discount, o.totals.fee, r2(o.totals.taxes.reduce((s, x) => s + x.amt, 0)), o.totals.total, allTags(o).join('; ')]);
+  });
+  const csv = rows.map((r) => r.map((v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  try {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = `${slug(t.name)}-sales.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Sales exported as CSV.');
+  } catch (e) { toast('Your browser blocked the download.'); }
+}
+
+/* ---------- receipts ---------- */
+function receiptHTML(o, title = 'Tax invoice') {
+  const t = S.tenants.find((x) => x.id === o.tenantId) || T();
+  const br = t.branches.find((b) => b.id === o.branchId) || B();
+  const d = new Date(o.created);
+  const when = new Intl.DateTimeFormat('en-NZ', { timeZone: REGIONS[t.region].tz, dateStyle: 'medium', timeStyle: 'short' }).format(d);
+  const gst = r2(o.totals.taxes.reduce((s, x) => s + x.amt, 0));
+  return `<div class="rcpt">
+    <div class="rcpt__c"><b class="rcpt__name">${esc(t.name)}</b><div>${esc(br.address || br.name)}</div><div>GST no. ${t.gstNo ? esc(t.gstNo) : '<span class="fill">to confirm</span>'}</div></div>
+    <div class="rcpt__c rcpt__title">${title}</div>
+    <div class="rcpt__row"><span>Order #${o.no}</span><span>${when}</span></div>
+    <div class="rcpt__row"><span>${esc(cap(o.label))}</span><span>${esc(autoTags(o).find((x) => x.k === 'channel').v)}</span></div>
+    <hr>
+    ${o.lines.map((l) => `<div class="rcpt__row"><span>${l.qty} × ${esc(l.name)}</span><span>${money(l.unit * l.qty, t)}</span></div>${l.mods.length ? `<div class="rcpt__mod">${esc(l.mods.join(', '))}</div>` : ''}`).join('')}
+    <hr>
+    <div class="rcpt__row"><span>Subtotal</span><span>${money(o.totals.subtotal, t)}</span></div>
+    ${o.totals.discount ? `<div class="rcpt__row"><span>Promo ${esc(o.totals.promoNote)}</span><span>−${money(o.totals.discount, t)}</span></div>` : ''}
+    ${o.totals.fee ? `<div class="rcpt__row"><span>Delivery</span><span>${money(o.totals.fee, t)}</span></div>` : ''}
+    <div class="rcpt__row rcpt__total"><span>Total (incl. GST)</span><span>${money(o.totals.total, t)}</span></div>
+    <div class="rcpt__row"><span>GST included (15%)</span><span>${money(gst, t)}</span></div>
+    <div class="rcpt__row"><span>${o.paid ? 'Paid by' : 'Payment'}</span><span>${o.paid ? esc(payGroup(o)) : 'Due'}</span></div>
+    <hr>
+    <div class="rcpt__c">Thank you, see you again soon.</div>
+  </div>`;
+}
+function openReceipt(o, title) {
+  const dlg = $('#item-dlg');
+  dlg.innerHTML = `<form method="dialog" id="rcpt-form"><div class="row"><h2 class="grow">${title === 'Bill' ? 'Bill' : 'Receipt'}</h2><button type="button" class="btn btn--icon" data-action="close-dlg" aria-label="Close">${ic('x')}</button></div>
+    <div class="rcpt-wrap" id="rcpt-src">${receiptHTML(o, title || 'Tax invoice')}</div>
+    <div class="row"><button type="button" class="btn btn--primary grow" data-action="do-print">${ic('receipt')}Print</button></div>
+    <p class="small muted">Prints on the receipt printer, or choose "Save as PDF" to email it. Sized for 80 mm receipt paper.</p></form>`;
+  dlg.showModal();
+}
+function printBill(tb) {
+  const orders = tb.orderIds.map((id) => S.orders.find((o) => o.id === id)).filter(Boolean);
+  if (!orders.length) return;
+  const lines = orders.flatMap((o) => o.lines);
+  const bill = Object.assign({}, orders[0], { no: orders.map((o) => o.no).join(', #'), lines, totals: priceLines(T(), lines, { mode: 'dine-in' }), paid: false, tags: [] });
+  openReceipt(bill, 'Bill');
+}
+function doPrint() {
+  const src = $('#rcpt-src'); if (!src) return;
+  let pa = $('#print-area');
+  if (!pa) { pa = document.createElement('div'); pa.id = 'print-area'; document.body.appendChild(pa); }
+  pa.innerHTML = src.innerHTML;
+  const dlg = $('#item-dlg'); if (dlg.open) dlg.close();
+  try { window.print(); } catch (e) { toast('Printing is blocked in this viewer. Open the page in a browser to print.'); }
 }
 
 /* ---------- phone agent ---------- */
@@ -1323,6 +1471,8 @@ document.addEventListener('change', (e) => {
   if (k === 'region') { t.region = el.value; t.tipping = REGIONS[el.value].tipDefault; }
   if (k === 'tipping') { t.tipping = el.checked; }
   if (k === 'pay-online') { t.payments.online = el.value; }
+  if (k === 'gst-no') { t.gstNo = el.value.trim(); }
+  if (k === 'tag-presets') { const list = el.value.split(',').map((s) => s.trim()).filter(Boolean); if (list.length) t.tagPresets = Array.from(new Set(list)).slice(0, 12); }
   if (k === 'pay-term') { t.payments.terminal = el.value; }
   if (k === 'agent-online') S.agent.online = el.checked;
   if (k === 'agent-greeting') S.agent.greeting = el.value;
@@ -1336,6 +1486,7 @@ document.addEventListener('change', (e) => {
 
 document.addEventListener('click', (e) => {
   const el = e.target.closest('[data-action]'); if (!el) return;
+  if (el.tagName === 'A') e.preventDefault();
   const a = el.dataset.action, t = T();
   const tables = S.tables[keyTB()];
   const sel = tables && tables.find((x) => x.id === S.pos.sel);
@@ -1363,17 +1514,24 @@ document.addEventListener('click', (e) => {
     case 'slot': S.book.time = el.dataset.v; break;
     case 'area': S.book.area = el.dataset.v === 'no preference' ? '' : el.dataset.v; break;
     case 'book-again': S.book = { party: 2, day: 0, time: '', area: '', name: '', phone: '', email: '', notes: '', doneRef: null }; break;
-    case 'table': S.pos.sel = el.dataset.id; S.pos.paying = false; S.pos.split = 1; S.pos.tipPct = t.tipping ? 0.18 : 0; break;
+    case 'table': S.pos.sel = el.dataset.id; S.pos.paying = false; S.pos.split = 1; S.pos.tipPct = t.tipping ? 0.18 : 0; S.pos.tags = []; break;
+    case 'pos-tag': { S.pos.tags = S.pos.tags || []; const v = el.dataset.v; S.pos.tags = S.pos.tags.includes(v) ? S.pos.tags.filter((x) => x !== v) : S.pos.tags.concat(v); break; }
+    case 'receipt': { const o = S.orders.find((x) => x.id === el.dataset.id); if (o) openReceipt(o); return; }
+    case 'do-print': doPrint(); return;
+    case 'sales-filter': { const v = el.dataset.v; S.salesFilter = S.salesFilter || []; S.salesFilter = S.salesFilter.includes(v) ? S.salesFilter.filter((x) => x !== v) : S.salesFilter.concat(v); break; }
+    case 'sales-clear': S.salesFilter = []; break;
+    case 'sale-tag': { const o = S.orders.find((x) => x.id === el.dataset.id); const v = el.dataset.v; if (o) { o.tags = o.tags || []; o.tags = o.tags.includes(v) ? o.tags.filter((x) => x !== v) : o.tags.concat(v); } break; }
+    case 'export-csv': exportCSV(); return;
     case 'guests': sel.guests = Math.max(1, Math.min(20, (sel.guests || 2) + +el.dataset.d)); break;
     case 'seat': sel.guests = sel.guests || 2; sel.state = 'seated'; break;
     case 'seat-booking': { const bk = S.bookings.find((x) => x.id === el.dataset.id); const fit = FLOOR_A.filter((f) => f.seats >= bk.party && tables.find((x) => x.id === f.id).state === 'free').sort((p, q) => p.seats - q.seats)[0]; if (!fit) { toast(`No free table fits ${bk.party}. Join tables or wait for one to clear.`); return; } const tb = tables.find((x) => x.id === fit.id); tb.state = 'seated'; tb.guests = bk.party; bk.status = 'seated'; S.pos.sel = tb.id; toast(`${esc(bk.name)} seated at ${tb.id}.`); break; }
     case 'padd': { const m = item(el.dataset.id); const ex = sel.pending.find((l) => l.id === m.id); if (ex) ex.qty++; else sel.pending.push({ id: m.id, name: m.name, qty: 1, unit: m.price, mods: [] }); break; }
     case 'pqty': { const l = sel.pending[+el.dataset.i]; l.qty += +el.dataset.d; if (l.qty <= 0) sel.pending.splice(+el.dataset.i, 1); break; }
     case 'send': { const lines = sel.pending.map((l) => ({ name: l.name, qty: l.qty, unit: l.unit, mods: l.mods })); const o = newOrder({ source: 'table', label: 'table ' + sel.id, lines, totals: priceLines(t, lines, { mode: 'dine-in' }), paid: false, meta: { mode: 'dine-in' } }); sel.orderIds.push(o.id); sel.pending = []; sel.state = 'ordered'; toast(`Table ${sel.id} sent to the <a href="${STAFF}#kitchen">kitchen</a>, ticket #${o.no}.`); break; }
-    case 'bill': if (sel.state === 'bill') S.pos.paying = true; else { sel.state = 'bill'; toast(`Bill for ${sel.id} printed.`); } break;
+    case 'bill': if (sel.state === 'bill') S.pos.paying = true; else { sel.state = 'bill'; save(); render(); printBill(sel); return; } break;
     case 'pay-cancel': S.pos.paying = false; break;
     case 'split': S.pos.split = Math.max(1, Math.min(sel.guests || 12, S.pos.split + +el.dataset.d)); break;
-    case 'terminal': { el.disabled = true; el.setAttribute('aria-busy', 'true'); const box = $('#terminal'); box.innerHTML = '<p class="badge badge--amber" style="margin-bottom:12px">EFTPOS terminal: waiting for card…</p>'; setTimeout(() => { box.innerHTML = '<p class="badge badge--green" style="margin-bottom:12px">EFTPOS terminal: accepted</p>'; }, reduced ? 50 : 1200); setTimeout(() => { sel.orderIds.forEach((id) => { const o = S.orders.find((x) => x.id === id); if (o) { o.paid = true; o.payment = 'EFTPOS terminal'; } }); toast(`Table ${sel.id} paid and cleared.`); sel.state = 'free'; sel.guests = 0; sel.orderIds = []; sel.pending = []; S.pos.paying = false; S.pos.sel = null; save(); render(); }, reduced ? 100 : 2000); return; }
+    case 'terminal': { el.disabled = true; el.setAttribute('aria-busy', 'true'); const box = $('#terminal'); box.innerHTML = '<p class="badge badge--amber" style="margin-bottom:12px">EFTPOS terminal: waiting for card…</p>'; setTimeout(() => { box.innerHTML = '<p class="badge badge--green" style="margin-bottom:12px">EFTPOS terminal: accepted</p>'; }, reduced ? 50 : 1200); setTimeout(() => { sel.orderIds.forEach((id) => { const o = S.orders.find((x) => x.id === id); if (o) { o.paid = true; o.payment = 'EFTPOS terminal'; o.tags = Array.from(new Set((o.tags || []).concat(S.pos.tags || []))); } }); const paidIds = sel.orderIds.slice(); toast(`Table ${sel.id} paid and cleared. <a href="#" data-action="receipt" data-id="${paidIds[paidIds.length - 1]}">Print receipt</a>`); S.pos.tags = []; sel.state = 'free'; sel.guests = 0; sel.orderIds = []; sel.pending = []; S.pos.paying = false; S.pos.sel = null; save(); render(); }, reduced ? 100 : 2000); return; }
     case 'bump': { const o = S.orders.find((x) => x.id === el.dataset.id); o.status = el.dataset.next; o.events.push({ t: Date.now(), text: { cooking: 'Kitchen started it', ready: 'Ready', done: 'Served or collected' }[o.status] }); if (o.status === 'ready' && o.source !== 'table') toast(`#${o.no} ready. ${o.source === 'phone' ? 'Pickup text sent to the caller.' : 'The guest sees it on their order screen.'}`); break; }
     case 'brand': t.brand = el.dataset.v; break;
     case 'call': runCall(); return;
