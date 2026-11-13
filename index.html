@@ -489,7 +489,7 @@ dialog h2 { font-size: 22px; }
     </div>
   </div>
 </header>
-<div class="notice"><p><span>Demo build: sample menu, prices, photos and extra branches. Stripe test mode, nothing is charged.</span><button type="button" class="linkish" data-action="reset" hidden id="reset-link">Reset demo</button></p></div>
+<div class="notice"><p><span>Demo build: sample menu, prices, photos and extra branches. Payments are in test mode, nothing is charged.</span><button type="button" class="linkish" data-action="reset" hidden id="reset-link">Reset demo</button></p></div>
 
 <main id="main" tabindex="-1">
   <div class="well pad" id="nojs"><h1>Open this in a web browser</h1><p class="muted" style="margin-top:8px">This is an interactive demo, and the app you opened it in only shows a preview. Open the link in Chrome, Safari or Edge.</p></div>
@@ -557,7 +557,7 @@ const MODS = {
     { id: 'spice', label: 'spice level', type: 'one', options: [['mild', 0], ['medium', 0], ['hot', 0]] }
   ],
   burger: [
-    { id: 'side', label: 'side', type: 'one', options: [['fries', 0], ['salad', 0], ['poutine', 4]] },
+    { id: 'side', label: 'side', type: 'one', options: [['fries', 0], ['salad', 0], ['kumara fries', 3]] },
     { id: 'extra', label: 'add on', type: 'many', options: [['extra patty', 5], ['bacon', 3], ['cheese', 2]] }
   ]
 };
@@ -617,22 +617,22 @@ const TENANTS_SEED = [
     promos: [{ code: 'WELCOME10', type: 'pct', value: 10, min: 30, on: true }]
   },
   {
-    id: 'example', name: 'Example Kitchen', region: 'CA-ON', brand: 'emerald', cuisine: 'Burgers and brunch (sample tenant)',
-    tipping: true, deliveryFee: 5, areas: ['dining room', 'patio', 'bar'],
+    id: 'example', name: 'Example Cafe', region: 'NZ', brand: 'emerald', cuisine: 'Burgers and brunch (sample tenant)',
+    tipping: false, deliveryFee: 5, areas: ['dining room', 'courtyard', 'bar'],
     branches: [
-      { id: 'queen', name: 'Queen St W', address: '100 Example Street, Toronto, ON', hours: EX_HOURS, sample: true, online: true, agent: true, delivery: true },
-      { id: 'kits', name: 'Kitsilano', address: '200 Example Avenue, Vancouver, BC', hours: EX_HOURS, sample: true, online: true, agent: true, delivery: false }
+      { id: 'ponsonby', name: 'Ponsonby', address: '100 Example Road, Ponsonby, Auckland', hours: EX_HOURS, sample: true, online: true, agent: true, delivery: true },
+      { id: 'welly', name: 'Wellington CBD', address: '200 Example Street, Wellington', hours: EX_HOURS, sample: true, online: true, agent: true, delivery: false }
     ],
     cats: ['burgers', 'brunch', 'sides', 'drinks'],
     menu: [
-      { id: 'e1', cat: 'burgers', name: 'Smash burger', desc: 'Two patties, cheese, pickles, house sauce.', price: 18, tags: [], mods: 'burger' },
-      { id: 'e2', cat: 'burgers', name: 'Crispy chicken burger', desc: 'Buttermilk chicken, slaw, hot honey.', price: 19, tags: [], mods: 'burger' },
-      { id: 'e3', cat: 'burgers', name: 'Mushroom burger', desc: 'Portobello, swiss, caramelised onion.', price: 17, tags: ['v'], mods: 'burger' },
-      { id: 'e4', cat: 'brunch', name: 'Peameal eggs benny', desc: 'Peameal bacon, poached eggs, hollandaise.', price: 21, tags: [], mods: null },
-      { id: 'e5', cat: 'brunch', name: 'Buttermilk pancakes', desc: 'Maple syrup, berries.', price: 16, tags: ['v'], mods: null },
-      { id: 'e6', cat: 'sides', name: 'Poutine', desc: 'Fries, cheese curds, gravy.', price: 11, tags: [], mods: null },
-      { id: 'e7', cat: 'sides', name: 'Fries', desc: 'Sea salt.', price: 7, tags: ['vg'], mods: null },
-      { id: 'e8', cat: 'drinks', name: 'Maple latte', desc: 'Espresso, steamed milk, maple.', price: 6, tags: ['v'], mods: null }
+      { id: 'e1', cat: 'burgers', name: 'Smash burger', desc: 'Two patties, cheese, pickles, house sauce.', price: 22, tags: [], mods: 'burger' },
+      { id: 'e2', cat: 'burgers', name: 'Crispy chicken burger', desc: 'Buttermilk chicken, slaw, hot honey.', price: 23, tags: [], mods: 'burger' },
+      { id: 'e3', cat: 'burgers', name: 'Mushroom burger', desc: 'Portobello, swiss, caramelised onion.', price: 21, tags: ['v'], mods: 'burger' },
+      { id: 'e4', cat: 'brunch', name: 'Eggs benedict', desc: 'Bacon, poached eggs, hollandaise, sourdough.', price: 24, tags: [], mods: null },
+      { id: 'e5', cat: 'brunch', name: 'Buttermilk pancakes', desc: 'Berries, maple syrup, whipped butter.', price: 20, tags: ['v'], mods: null },
+      { id: 'e6', cat: 'sides', name: 'Loaded fries', desc: 'Cheese, gravy, spring onion.', price: 13, tags: [], mods: null },
+      { id: 'e7', cat: 'sides', name: 'Fries', desc: 'Sea salt, aioli.', price: 9, tags: ['vg'], mods: null },
+      { id: 'e8', cat: 'drinks', name: 'Flat white', desc: 'Double shot, steamed milk.', price: 6, tags: ['v'], mods: null }
     ],
     voiceOrder: ['e1', 'e1', 'e6'],
     promos: [{ code: 'FIRSTORDER', type: 'amt', value: 5, min: 25, on: true }]
@@ -655,13 +655,14 @@ const PHOTO_CREDITS = {
   '1586805608485-add336722759': 'withlovefromchile', '1541167760496-1628856ab772': 'Fahmi Fakhrudin', '1552960226-639240203497': 'takahiro taguchi', '1763993679664-6afaf7ff043d': 'Alexander Van Steenberge'
 };
 TENANTS_SEED.forEach((t) => t.menu.forEach((m) => { m.img = PHOTOS[m.id]; }));
+TENANTS_SEED.forEach((t) => { t.payments = { online: 'Stripe', terminal: 'Windcave' }; });
 TENANTS_SEED[0].cover = '1552960226-639240203497';
 TENANTS_SEED[1].cover = '1763993679664-6afaf7ff043d';
 
 /* =========================================================
    State and persistence (one viewer's browser only)
    ========================================================= */
-const STORE_KEY = 'kitchenline-demo-v2';
+const STORE_KEY = 'kitchenline-demo-v3';
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
 function freshState() {
@@ -929,7 +930,7 @@ function viewCheckout(tot) {
     <div id="pay-error" aria-live="assertive"></div>
     ${totalsHTML(tot)}
     <button type="submit" class="btn btn--primary btn--block" id="pay-btn">${ic('lock')}Pay ${money(tot.total)}</button>
-    <p class="stripe-note">${ic('lock')}Secured by Stripe. The restaurant never sees your card number.</p>
+    <p class="stripe-note">${ic('lock')}Secured by ${esc(T().payments.online)}. The restaurant never sees your card number.</p>
   </form>`;
 }
 
@@ -1003,7 +1004,7 @@ function viewBook() {
     <div class="grid-2"><div class="field"><label for="b-name">Name</label><input class="input" id="b-name" name="name" autocomplete="name" required value="${esc(bk.name)}" data-model="book.name"><p class="help" id="b-name-h"></p></div>
     <div class="field"><label for="b-phone">Mobile</label><input class="input" id="b-phone" type="tel" name="tel" inputmode="tel" autocomplete="tel" required placeholder="${R().phoneEg}" value="${esc(bk.phone)}" data-model="book.phone"><p class="help" id="b-phone-h"></p></div></div>
     <div class="field"><label for="b-notes">Occasion or requests</label><textarea class="input" id="b-notes" name="notes" data-model="book.notes" placeholder="Birthday, high chair, allergies">${esc(bk.notes)}</textarea></div>
-    ${deposit ? `<div class="field"><label for="b-card">Card for the ${money(deposit)} deposit</label><input class="input" id="b-card" name="cc-number" autocomplete="cc-number" inputmode="numeric" placeholder="4242 4242 4242 4242"><p class="help">Taken off the bill on the night. Stripe test mode.</p></div>` : ''}
+    ${deposit ? `<div class="field"><label for="b-card">Card for the ${money(deposit)} deposit</label><input class="input" id="b-card" name="cc-number" autocomplete="cc-number" inputmode="numeric" placeholder="4242 4242 4242 4242"><p class="help">Taken off the bill on the night. Test mode, nothing is charged.</p></div>` : ''}
     <div id="book-error" aria-live="assertive"></div>
     <button type="submit" class="btn btn--primary btn--block">${deposit ? 'Pay deposit and book' : 'Book the table'}</button>
   </form>
@@ -1048,9 +1049,9 @@ function posPanel(tb) {
       ${totalsHTML(tot)}
       <div class="row" style="margin-top:12px"><span class="lbl grow">Split between</span><span class="stepper"><button type="button" class="btn btn--icon" data-action="split" data-d="-1" aria-label="Fewer ways">${ic('minus')}</button><output>${S.pos.split}</output><button type="button" class="btn btn--icon" data-action="split" data-d="1" aria-label="More ways">${ic('plus')}</button></span></div>
       ${t.tipping ? tipHTML('tip-pos', S.pos.tipPct) : ''}
-      <p style="margin:16px 0" class="small muted">${S.pos.split > 1 ? `${S.pos.split} payments of ${money(each)}` : 'One payment'}${R().country === 'CA' ? ', card or Interac' : ', card or EFTPOS'} on the reader.</p>
+      <p style="margin:16px 0" class="small muted">${S.pos.split > 1 ? `${S.pos.split} payments of ${money(each)}` : 'One payment'}.</p><div class="info-list" style="margin:0 0 16px"><div>${ic('dollar')}<span>Sent to the ${esc(t.payments.terminal === 'Bank' ? 'bank EFTPOS' : t.payments.terminal)} terminal. Guest pays by EFTPOS, debit, credit card or phone. Inserted EFTPOS has no transaction fee.</span></div></div>
       <div id="terminal" aria-live="polite"></div>
-      <button type="button" class="btn btn--primary btn--block" data-action="terminal" data-n="${S.pos.split}">${ic('dollar')}Send ${money(each)} to card reader</button>`;
+      <button type="button" class="btn btn--primary btn--block" data-action="terminal" data-n="${S.pos.split}">${ic('dollar')}Send ${money(each)} to EFTPOS terminal</button>`;
   }
   return `<div class="row"><h2 class="grow">Table ${tb.id}</h2>${stateBadge}</div><p class="small muted" style="margin-top:4px">${tb.guests} guests</p>
     ${sentLines.length ? `<p class="lbl" style="margin-top:16px">Sent to kitchen</p>${sentLines.map((l) => `<div class="line"><span>${l.qty} × ${esc(l.name)}</span><span class="price">${money(l.unit * l.qty)}</span></div>`).join('')}` : ''}
@@ -1082,7 +1083,7 @@ function viewKitchen() {
 
 /* ---------- HQ ---------- */
 function viewHQ() {
-  const tabs = [['Branches', 'hq'], ['Menu', 'hq-menu'], ['Promos', 'hq-promos'], ['Reports', 'hq-reports'], ['Brand and region', 'hq-brand']];
+  const tabs = [['Branches', 'hq'], ['Menu', 'hq-menu'], ['Promos', 'hq-promos'], ['Reports', 'hq-reports'], ['Brand and payments', 'hq-brand']];
   const t = T();
   const body = { branches: hqBranches, menu: hqMenu, promos: hqPromos, reports: hqReports, brand: hqBrand }[S.hqTab]();
   return `<div class="view-head"><div><h1>Head office</h1><p>${esc(t.name)}, all branches. Changes apply to ordering, POS and the phone agent at once.</p></div></div>
@@ -1130,17 +1131,18 @@ function hqReports() {
 function hqBrand() {
   const t = T(), reg = R();
   const sample = priceLines(t, [{ unit: 20, qty: 1 }], {});
-  return `<div class="hq-split"><form id="brand-form" class="well pad stack" novalidate><h2>Brand and region</h2>
+  return `<div class="hq-split"><form id="brand-form" class="well pad stack" novalidate><h2>Brand and payments</h2>
     <div class="field"><label for="br-name">Business name</label><input class="input" id="br-name" name="organization" autocomplete="organization" value="${esc(t.name)}" data-change="tenant-name"></div>
     <fieldset><legend>Brand colour</legend><div class="swatches">${BRANDS.map((b) => `<button type="button" class="swatch sw-${b}" data-action="brand" data-v="${b}" aria-pressed="${t.brand === b}" aria-label="${b}"></button>`).join('')}</div></fieldset>
-    <div class="field"><label for="br-region">Country and tax region</label><select class="input" id="br-region" data-change="region">${Object.entries(REGIONS).map(([k, v]) => `<option value="${k}" ${k === t.region ? 'selected' : ''}>${v.label}</option>`).join('')}</select>
+    <div class="field"><label for="br-region">Country and tax</label><select class="input" id="br-region" data-change="region">${Object.entries(REGIONS).filter(([k]) => k === 'NZ').map(([k, v]) => `<option value="${k}" ${k === t.region ? 'selected' : ''}>${v.label}</option>`).join('')}</select>
       <p class="help">${reg.taxMode === 'inclusive' ? `Menu prices include ${reg.taxes[0].name}; receipts show the ${reg.taxes[0].name} inside the total.` : `Menu prices exclude tax; ${reg.taxes.map((x) => x.name + ' ' + r2(x.rate * 100) + '%').join(' and ')} is added at checkout.`} Confirm rates with an accountant before launch.</p></div>
-    <label class="switch"><input type="checkbox" data-change="tipping" ${t.tipping ? 'checked' : ''}>Ask guests for a tip at checkout and on the card reader</label>
-    <div class="field"><label for="br-domain">Ordering web address</label><input class="input" id="br-domain" placeholder="order.yourrestaurant.${R().country === 'NZ' ? 'co.nz' : 'ca'}" autocomplete="url"><p class="help">Each licence runs on the restaurant's own domain.</p></div>
+    <label class="switch"><input type="checkbox" data-change="tipping" ${t.tipping ? 'checked' : ''}>Ask guests for an optional tip at checkout</label>
+    <fieldset><legend>Payments</legend><div class="grid-2"><div class="field"><label for="pay-online">Online, bookings and phone pay links</label><select class="input" id="pay-online" data-change="pay-online">${['Stripe', 'Windcave', 'Airwallex'].map((p) => `<option ${t.payments.online === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div><div class="field"><label for="pay-term">In-store terminal</label><select class="input" id="pay-term" data-change="pay-term">${[['Windcave', 'Windcave EFTPOS'], ['Bank', 'Bank EFTPOS (ANZ, ASB, BNZ, Westpac)'], ['Stripe Terminal', 'Stripe Terminal']].map(([v, l]) => `<option value="${v}" ${t.payments.terminal === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div><p class="help">Each restaurant keeps its own merchant account and rates. Card payments in store go through the restaurant's EFTPOS terminal, so inserted EFTPOS stays free.</p></fieldset>
+    <div class="field"><label for="br-domain">Ordering web address</label><input class="input" id="br-domain" placeholder="order.yourrestaurant.co.nz" autocomplete="url"><p class="help">Each licence runs on the restaurant's own domain.</p></div>
   </form>
   <div class="well preview" aria-label="Preview"><div class="preview__bar"><span class="logo">${esc(initials(t.name))}</span><div class="wordmark"><span><b>${esc(t.name)}</b><span>Powered by kitchenline</span></span></div></div>
     <div class="preview__body stack"><div class="line"><span>A ${money(20)} dish</span><span class="price">${money(sample.total)} at checkout</span></div>
-    <p class="small muted">${reg.currency} · ${reg.label} · ${t.tipping ? 'tip prompt on' : 'no tip prompt'}</p>
+    <p class="small muted">${reg.currency}, GST included · online by ${esc(t.payments.online)} · in store by ${esc(t.payments.terminal === 'Bank' ? 'bank EFTPOS' : t.payments.terminal)}</p>
     <div class="row"><button type="button" class="btn btn--primary">${ic('bag')}Order now</button><button type="button" class="btn">${ic('cal')}Book a table</button></div></div></div></div>`;
 }
 
@@ -1151,11 +1153,11 @@ function viewVoice() {
   const greeting = a.greeting || defaultGreeting();
   return `<div class="view-head"><div><h1>Phone AI agent</h1><p>Answers ${esc(b.name)}'s phone line when staff are busy. Books tables and takes takeaway orders straight into this system.</p></div>
     <label class="switch"><input type="checkbox" data-change="agent-online" ${a.online ? 'checked' : ''}><span class="${a.online ? 'live' : 'muted'}">${a.online ? 'Answering calls' : 'Off, calls ring the branch'}</span></label></div>
-  <div class="well path" aria-label="How a call flows"><span class="node">${ic('phone')}Guest calls</span><span class="wire"></span><span class="node">${ic('mic')}${R().country === 'NZ' ? 'NZ' : 'Canadian'} phone number</span><span class="wire"></span><span class="node">${ic('msg')}Speech to text</span><span class="wire wire--ours"></span><span class="node node--ours">${ic('bot')}AI agent with live menu, tables, hours</span><span class="wire wire--ours"></span><span class="node node--ours">${ic('flame')}Booking or kitchen ticket</span><span class="wire"></span><span class="node">${ic('lock')}Pay link by text</span></div>
+  <div class="well path" aria-label="How a call flows"><span class="node">${ic('phone')}Guest calls</span><span class="wire"></span><span class="node">${ic('mic')}NZ phone number</span><span class="wire"></span><span class="node">${ic('msg')}Speech to text</span><span class="wire wire--ours"></span><span class="node node--ours">${ic('bot')}AI agent with live menu, tables, hours</span><span class="wire wire--ours"></span><span class="node node--ours">${ic('flame')}Booking or kitchen ticket</span><span class="wire"></span><span class="node">${ic('lock')}Pay link by text</span></div>
   <div class="voice-layout" style="margin-top:20px">
     <form id="agent-form" class="well pad stack" novalidate><h2>Agent settings</h2>
       <div class="field"><label for="ag-greet">Greeting</label><textarea class="input" id="ag-greet" data-change="agent-greeting">${esc(greeting)}</textarea></div>
-      <div class="field"><label for="ag-voice">Voice</label><select class="input" id="ag-voice" data-change="agent-voice">${['warm, female, NZ English', 'calm, male, NZ English', 'warm, female, Canadian English', 'calm, male, Canadian English'].map((v) => `<option value="${v}" ${v === a.voice ? 'selected' : ''}>${cap(v)}</option>`).join('')}</select></div>
+      <div class="field"><label for="ag-voice">Voice</label><select class="input" id="ag-voice" data-change="agent-voice">${['warm, female, NZ English', 'calm, male, NZ English', 'bright, female, NZ English'].map((v) => `<option value="${v}" ${v === a.voice ? 'selected' : ''}>${cap(v)}</option>`).join('')}</select></div>
       <fieldset><legend>The agent can</legend><div class="stack-s">
         <label class="switch"><input type="checkbox" data-change="agent-can" data-k="canBook" ${a.canBook ? 'checked' : ''}>Book, move and cancel tables</label>
         <label class="switch"><input type="checkbox" data-change="agent-can" data-k="canOrder" ${a.canOrder ? 'checked' : ''}>Take takeaway orders, paid by texted link</label>
@@ -1220,10 +1222,10 @@ function runCall() {
       push('caller', 'Priya. Thanks!');
       push('sys', '', () => {
         const o = newOrder({ source: 'phone', label: 'pickup, Priya', lines, totals: tot, paid: false, payment: 'texted link', meta: { mode: 'pickup' } });
-        o.events.push({ t: Date.now() + 2000, text: 'Paid by texted Stripe link' });
+        o.events.push({ t: Date.now() + 2000, text: 'Paid by texted payment link' });
         setTimeout(() => { o.paid = true; save(); }, 2000);
         toast(`Phone order #${o.no} is on the <a href="#kitchen">kitchen screen</a>.`);
-        return `create_order → #${o.no} sent to kitchen. send_payment_link → texted, Stripe.`;
+        return `create_order → #${o.no} sent to kitchen. send_payment_link → texted, ${T().payments.online}.`;
       });
       push('agent', "Thanks Priya, it's with the kitchen. See you soon.");
       script.push({ end: { intent: 'takeaway order', outcome: 'order sent to kitchen' } });
@@ -1278,6 +1280,8 @@ document.addEventListener('change', (e) => {
   if (k === 'tenant-name') { const v = el.value.trim(); if (v) t.name = v; }
   if (k === 'region') { t.region = el.value; t.tipping = REGIONS[el.value].tipDefault; }
   if (k === 'tipping') { t.tipping = el.checked; }
+  if (k === 'pay-online') { t.payments.online = el.value; }
+  if (k === 'pay-term') { t.payments.terminal = el.value; }
   if (k === 'agent-online') S.agent.online = el.checked;
   if (k === 'agent-greeting') S.agent.greeting = el.value;
   if (k === 'agent-voice') S.agent.voice = el.value;
@@ -1325,7 +1329,7 @@ document.addEventListener('click', (e) => {
     case 'bill': if (sel.state === 'bill') S.pos.paying = true; else { sel.state = 'bill'; toast(`Bill for ${sel.id} printed.`); } break;
     case 'pay-cancel': S.pos.paying = false; break;
     case 'split': S.pos.split = Math.max(1, Math.min(sel.guests || 12, S.pos.split + +el.dataset.d)); break;
-    case 'terminal': { el.disabled = true; el.setAttribute('aria-busy', 'true'); const box = $('#terminal'); box.innerHTML = '<p class="badge badge--amber" style="margin-bottom:12px">Card reader: waiting for tap…</p>'; setTimeout(() => { box.innerHTML = '<p class="badge badge--green" style="margin-bottom:12px">Card reader: approved</p>'; }, reduced ? 50 : 1200); setTimeout(() => { sel.orderIds.forEach((id) => { const o = S.orders.find((x) => x.id === id); if (o) { o.paid = true; o.payment = 'card reader'; } }); toast(`Table ${sel.id} paid and cleared.`); sel.state = 'free'; sel.guests = 0; sel.orderIds = []; sel.pending = []; S.pos.paying = false; S.pos.sel = null; save(); render(); }, reduced ? 100 : 2000); return; }
+    case 'terminal': { el.disabled = true; el.setAttribute('aria-busy', 'true'); const box = $('#terminal'); box.innerHTML = '<p class="badge badge--amber" style="margin-bottom:12px">EFTPOS terminal: waiting for card…</p>'; setTimeout(() => { box.innerHTML = '<p class="badge badge--green" style="margin-bottom:12px">EFTPOS terminal: accepted</p>'; }, reduced ? 50 : 1200); setTimeout(() => { sel.orderIds.forEach((id) => { const o = S.orders.find((x) => x.id === id); if (o) { o.paid = true; o.payment = 'EFTPOS terminal'; } }); toast(`Table ${sel.id} paid and cleared.`); sel.state = 'free'; sel.guests = 0; sel.orderIds = []; sel.pending = []; S.pos.paying = false; S.pos.sel = null; save(); render(); }, reduced ? 100 : 2000); return; }
     case 'bump': { const o = S.orders.find((x) => x.id === el.dataset.id); o.status = el.dataset.next; o.events.push({ t: Date.now(), text: { cooking: 'Kitchen started it', ready: 'Ready', done: 'Served or collected' }[o.status] }); if (o.status === 'ready' && o.source !== 'table') toast(`#${o.no} ready. ${o.source === 'phone' ? 'Pickup text sent to the caller.' : 'The guest sees it on their order screen.'}`); break; }
     case 'brand': t.brand = el.dataset.v; break;
     case 'call': runCall(); return;
