@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-brand="chilli">
+<html lang="en" data-brand="chilli" data-app="guest">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<title>Jack n Jill Eatery: ordering, bookings, POS, kitchen and phone agent demo</title>
+<title>Jack n Jill Eatery: order online or book a table</title>
 <meta name="description" content="A white-label restaurant platform demo: online ordering, table bookings, POS floor plan, kitchen display, multi-branch HQ and an AI phone agent.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -473,42 +473,52 @@ dialog h2 { font-size: 22px; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
+/* ---------- staff app ---------- */
+.topbar--staff { background: #1c1012; border-bottom-color: #2e1c1f; color: #fff; }
+.topbar--staff .wordmark > span:not(.logo) { color: #fff; }
+.topbar--staff .wordmark > span:not(.logo) > span { color: #c9b4b6; }
+.topbar--staff .tabs { background: #2e1c1f; }
+.topbar--staff .tab { color: #e2d3d5; }
+.topbar--staff .tab:hover { color: #fff; }
+.topbar--staff .tab[aria-current="page"] { background: #fff; color: var(--ink); }
+.topbar--staff .topbar__ctl .input { background-color: #2e1c1f; border-color: #4a3034; color: #fff; }
+.topbar--staff .signout { background: #2e1c1f; border-color: #4a3034; color: #fff; }
+.gate { position: fixed; inset: 0; z-index: 800; display: grid; place-items: center; padding: 20px; background: linear-gradient(160deg, #1c1012, #3a1416); }
+.gate__card { width: 100%; max-width: 24rem; display: grid; gap: 16px; padding: 28px; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); text-align: left; }
+.gate__card .logo { width: 48px; height: 48px; font-size: 18px; }
+.gate__card .input { font-size: 22px; letter-spacing: .4em; text-align: center; height: 56px; }
+@media (max-width: 900px) {
+  .topbar--staff { background: #1c1012; }
+  .topbar--staff .tabs { background: rgba(28, 16, 18, .96); border-top-color: #2e1c1f; }
+  .topbar--staff .tab[aria-current="page"] { background: #fff; color: var(--ink); }
+}
+
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="topbar">
   <div class="topbar__in">
-    <a class="wordmark" href="#order" aria-label="Home: guest ordering">
+    <a class="wordmark" href="#order" aria-label="Home: order online">
       <span class="logo" id="brand-logo">JJ</span>
-      <span><b id="brand-name">Jack n Jill Eatery</b><span>Powered by kitchenline</span></span>
+      <span><b id="brand-name">Jack n Jill Eatery</b><span>Order online or book a table</span></span>
     </a>
-    <nav class="tabs" aria-label="Surfaces">
-      <a class="tab" href="#order" data-tab="order"><svg class="i"><use href="#i-bag"/></svg><span class="tl">Order</span></a>
-      <a class="tab" href="#book" data-tab="book"><svg class="i"><use href="#i-cal"/></svg><span class="tl">Book</span></a>
-      <a class="tab" href="#pos" data-tab="pos"><svg class="i"><use href="#i-grid"/></svg><span class="tl">POS</span></a>
-      <a class="tab" href="#kitchen" data-tab="kitchen"><svg class="i"><use href="#i-flame"/></svg><span class="tl">Kitchen</span><small id="kds-count"></small></a>
-      <a class="tab" href="#hq" data-tab="hq"><svg class="i"><use href="#i-chart"/></svg><span class="tl">HQ</span></a>
-      <a class="tab" href="#voice" data-tab="voice"><svg class="i"><use href="#i-phone"/></svg><span class="tl">Phone AI</span></a>
+    <nav class="tabs" aria-label="Main">
+      <a class="tab" href="#order" data-tab="order"><svg class="i"><use href="#i-bag"/></svg><span class="tl">Order online</span></a>
+      <a class="tab" href="#book" data-tab="book"><svg class="i"><use href="#i-cal"/></svg><span class="tl">Book a table</span></a>
     </nav>
     <div class="topbar__ctl">
-      <label class="visually-hidden" for="tenant-sel">Restaurant</label>
-      <select class="input" id="tenant-sel" data-change="tenant"></select>
-      <label class="visually-hidden" for="branch-sel">Branch</label>
+      <label class="visually-hidden" for="branch-sel">Location</label>
       <select class="input" id="branch-sel" data-change="branch"></select>
     </div>
   </div>
 </header>
-<div class="notice"><p><span>Demo build: sample menu, prices, photos and extra branches. Payments are in test mode, nothing is charged.</span><button type="button" class="linkish" data-action="reset" hidden id="reset-link">Reset demo</button></p></div>
+<div class="notice"><p><span>Demo: this is what guests see. Sample menu, prices and photos; payments are in test mode.</span><a class="linkish" href="staff/#pos" target="_blank" rel="noopener">Open the staff app</a><button type="button" class="linkish" data-action="reset" hidden id="reset-link">Reset demo</button></p></div>
 
 <main id="main" tabindex="-1">
   <div class="well pad" id="nojs"><h1>Open this in a web browser</h1><p class="muted" style="margin-top:8px">This is an interactive demo, and the app you opened it in only shows a preview. Open the link in Chrome, Safari or Edge.</p></div>
-  <section data-view="order" class="order-view" aria-label="Guest ordering"></section>
-  <section data-view="book" aria-label="Table booking" hidden></section>
-  <section data-view="pos" aria-label="Point of sale" hidden></section>
-  <section data-view="kitchen" aria-label="Kitchen display" hidden></section>
-  <section data-view="hq" aria-label="Head office" hidden></section>
-  <section data-view="voice" aria-label="Phone agent" hidden></section>
+  <section data-view="order" class="order-view" aria-label="Order online"></section>
+  <section data-view="book" aria-label="Book a table" hidden></section>
 </main>
 <p class="credits" id="credits"></p>
 
@@ -673,6 +683,9 @@ TENANTS_SEED[1].cover = '1763993679664-6afaf7ff043d';
    State and persistence (one viewer's browser only)
    ========================================================= */
 const STORE_KEY = 'kitchenline-demo-v4';
+const APP = document.documentElement.dataset.app === 'staff' ? 'staff' : 'guest';
+const STAFF = APP === 'staff' ? './' : 'staff/';
+const GUEST = APP === 'staff' ? '../' : './';
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
 function freshState() {
@@ -807,7 +820,7 @@ function newOrder({ source, label, lines, totals, paid, payment, meta }) {
 }
 function updateBadge() {
   const n = S.orders.filter((o) => o.tenantId === S.tenantId && o.branchId === B().id && (o.status === 'new' || o.status === 'cooking')).length;
-  $('#kds-count').textContent = n ? String(n) : '';
+  const kc = $('#kds-count'); if (kc) kc.textContent = n ? String(n) : '';
 }
 
 let S;
@@ -817,11 +830,12 @@ if (!S || !S.tenants) S = freshState();
 /* =========================================================
    Router: plain #name hashes only
    ========================================================= */
-const ROUTES = ['order', 'book', 'pos', 'kitchen', 'hq', 'hq-menu', 'hq-promos', 'hq-reports', 'hq-brand', 'voice'];
+const ROUTES = APP === 'staff' ? ['pos', 'kitchen', 'hq', 'hq-menu', 'hq-promos', 'hq-reports', 'hq-brand', 'voice'] : ['order', 'book'];
+const HOME = APP === 'staff' ? 'pos' : 'order';
 let current = null;
 function route() {
   const h = location.hash.slice(1);
-  const name = ROUTES.includes(h) ? h : 'order';
+  const name = ROUTES.includes(h) ? h : HOME;
   const view = name.startsWith('hq') ? 'hq' : name;
   if (view === 'hq') S.hqTab = name === 'hq' ? 'branches' : name.slice(3);
   $$('[data-view]').forEach((s) => { s.hidden = s.dataset.view !== view; });
@@ -852,13 +866,13 @@ function applyTenant() {
   $('#brand-name').textContent = t.name;
   $('#brand-logo').textContent = initials(t.name);
   const ts = $('#tenant-sel');
-  ts.innerHTML = S.tenants.map((x) => `<option value="${x.id}" ${x.id === t.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
+  if (ts) ts.innerHTML = S.tenants.map((x) => `<option value="${x.id}" ${x.id === t.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
   const bs = $('#branch-sel');
   bs.innerHTML = t.branches.map((b) => `<option value="${b.id}" ${b.id === B().id ? 'selected' : ''}>${esc(b.name)}</option>`).join('');
   if (!S.tables[keyTB()]) S.tables[keyTB()] = FLOOR_A.map((f) => ({ id: f.id, state: 'free', guests: 0, pending: [], orderIds: [] }));
   const ids = new Set([t.cover].concat(t.menu.map((m) => m.img)).filter(Boolean));
   const names = Array.from(new Set(Array.from(ids).map((id) => PHOTO_CREDITS[id]).filter(Boolean)));
-  $('#credits').innerHTML = names.length ? `Sample photos from <a href="https://unsplash.com/?utm_source=kitchenline_demo&utm_medium=referral">Unsplash</a> by ${names.map(esc).join(', ')}. Swap in the restaurant's own photos before launch.` : '';
+  if ($('#credits')) $('#credits').innerHTML = names.length ? `Sample photos from <a href="https://unsplash.com/?utm_source=kitchenline_demo&utm_medium=referral">Unsplash</a> by ${names.map(esc).join(', ')}. Swap in the restaurant's own photos before launch.` : '';
 }
 
 /* ---------- guest ordering ---------- */
@@ -871,7 +885,7 @@ function viewOrder() {
       <div class="seg" role="group" aria-label="How you want it">
         ${[['pickup', 'Pickup', 'store'], ['delivery', 'Delivery', 'bike'], ['dine-in', 'Dine in', 'chair']].map(([m, l, i]) => `<button type="button" data-action="mode" data-v="${m}" aria-pressed="${S.mode === m}" ${m === 'delivery' && !b.delivery ? 'disabled' : ''}>${ic(i)}${l}</button>`).join('')}
       </div></div></div>`;
-  if (!b.online) return hero + `<div class="well">${emptyHTML('store', `Online ordering is paused at ${esc(b.name)}`, 'HQ has switched it off for this branch. Pick another branch, or turn it back on in HQ.', '<a class="btn btn--primary" href="#hq">Open branch settings</a>')}</div>`;
+  if (!b.online) return hero + `<div class="well">${emptyHTML('store', `Online ordering is paused at ${esc(b.name)}`, 'This location is not taking online orders right now. Pick another location, or call the restaurant.', '')}</div>`;
   if (S.step === 'track') return hero + viewTrack();
   const so = soldOutSet();
   const tagLbl = { v: 'Veg', vg: 'Vegan', gf: 'GF' };
@@ -959,8 +973,9 @@ function viewTrack() {
   return `<div class="book-layout"><div class="well pad">
       <div class="track-head"><div class="track-ic">${ic(o.status === 'ready' || o.status === 'done' ? 'check' : 'flame')}</div><div><p class="small muted">Order #${o.no}</p><h2 style="font-size:24px">${title}</h2></div></div>
       <ol class="trail" aria-label="Order progress">${steps.map((s, i) => `<li class="${s.done ? 'done' : ''} ${s.now ? 'now' : ''}"><span>${s.text}</span><time>${s.done ? evT(i) : ''}</time></li>`).join('')}</ol>
-      <p class="small muted">This screen follows the same ticket the kitchen sees. Move it along on the <a href="#kitchen">kitchen screen</a> and watch it update.</p>
-      <div class="row row--wrap" style="margin-top:16px"><a class="btn btn--dark" href="#kitchen">${ic('flame')}Open kitchen screen</a><button type="button" class="btn" data-action="new-order">Start a new order</button></div>
+      <p class="small muted">We'll text you when it's ready. This page updates on its own.</p>
+      <div class="row row--wrap" style="margin-top:16px"><button type="button" class="btn" data-action="new-order">Start a new order</button></div>
+      <p class="small muted" style="margin-top:16px;padding-top:12px;border-top:1px dashed var(--line-2)">Demo tip: open the <a href="${STAFF}#kitchen" target="_blank" rel="noopener">staff kitchen screen</a> in another tab and move this ticket along. This page follows it live.</p>
     </div>
     <div class="well pad"><div class="row"><h2 class="grow">Receipt</h2>${ic('receipt')}</div>${o.lines.map((l) => `<div class="line"><span>${l.qty} × ${esc(l.name)}</span><span class="price">${money(l.unit * l.qty)}</span>${l.mods.length ? `<span class="line__mods">${esc(l.mods.join(', '))}</span>` : ''}</div>`).join('')}${totalsHTML(o.totals)}<p class="small muted">Paid by ${esc(o.payment)}.</p></div></div>`;
 }
@@ -999,7 +1014,7 @@ function viewBook() {
     return `<div class="book-layout"><div class="well pad stack"><div class="success-ic">${ic('check')}</div><div><p class="small muted">Booking ${esc(x.ref)}</p><h1>You're booked for ${esc(fmtDay(x.date, { weekday: 'long' }))}</h1></div>
       <dl class="totals"><dt>Where</dt><dd>${esc(t.name)}, ${esc(b.name)}</dd><dt>When</dt><dd>${esc(fmtDay(x.date, { weekday: 'short', day: 'numeric', month: 'short' }))}, ${fmtHour(hm(x.time))}</dd><dt>Party</dt><dd>${x.party} people</dd><dt>Seating</dt><dd>${esc(cap(x.area))}</dd>${x.deposit ? `<dt>Deposit paid</dt><dd class="price">${money(x.deposit)}</dd>` : ''}</dl>
       <p class="small muted">A confirmation text goes to ${esc(x.phone)}. The booking is already on the POS.</p>
-      <div class="row row--wrap"><a class="btn btn--dark" href="#pos">${ic('grid')}See it on the POS</a><button type="button" class="btn" data-action="book-again">Make another booking</button></div></div></div>`;
+      <div class="row row--wrap"><a class="btn btn--dark" href="${STAFF}#pos">${ic('grid')}See it on the POS</a><button type="button" class="btn" data-action="book-again">Make another booking</button></div></div></div>`;
   }
   const today = todayISO(tz);
   const days = Array.from({ length: 14 }, (_, i) => addDaysISO(today, i));
@@ -1036,7 +1051,7 @@ function viewPos() {
   <div class="pos-layout"><div>
     <div class="floor-wrap well"><div class="blueprint floor" role="group" aria-label="Floor plan">${zones}${tbls}</div></div>
     <div class="legend"><span><i></i>Free</span><span><i class="seated"></i>Seated</span><span><i class="ordered"></i>Food ordered</span><span><i class="bill"></i>Bill requested</span></div>
-    <section class="bookings-list"><h2>Today's bookings</h2>${bks.length ? `<div class="t-wrap"><table class="t t-stack"><thead><tr><th>Time</th><th>Name</th><th class="num">Party</th><th>Seating</th><th>Source</th><th><span class="visually-hidden">Action</span></th></tr></thead><tbody>${bks.map((b) => `<tr><td><b>${fmtHour(hm(b.time))}</b></td><td>${esc(b.name)}</td><td class="num">${b.party}</td><td>${esc(cap(b.area))}</td><td>${b.source === 'phone' ? '<span class="badge badge--amber">Phone AI</span>' : '<span class="badge badge--blue">Online</span>'}</td><td class="num"><button type="button" class="btn btn--sm" data-action="seat-booking" data-id="${b.id}">Seat</button></td></tr>`).join('')}</tbody></table></div>` : `<div class="well">${emptyHTML('cal', 'No more bookings today', 'New ones from the website or the phone agent land here.', '<a class="btn" href="#book">Add a booking</a>')}</div>`}</section>
+    <section class="bookings-list"><h2>Today's bookings</h2>${bks.length ? `<div class="t-wrap"><table class="t t-stack"><thead><tr><th>Time</th><th>Name</th><th class="num">Party</th><th>Seating</th><th>Source</th><th><span class="visually-hidden">Action</span></th></tr></thead><tbody>${bks.map((b) => `<tr><td><b>${fmtHour(hm(b.time))}</b></td><td>${esc(b.name)}</td><td class="num">${b.party}</td><td>${esc(cap(b.area))}</td><td>${b.source === 'phone' ? '<span class="badge badge--amber">Phone AI</span>' : '<span class="badge badge--blue">Online</span>'}</td><td class="num"><button type="button" class="btn btn--sm" data-action="seat-booking" data-id="${b.id}">Seat</button></td></tr>`).join('')}</tbody></table></div>` : `<div class="well">${emptyHTML('cal', 'No more bookings today', 'New ones from the website or the phone agent land here.', `<a class="btn" href="${GUEST}#book">Open the booking page</a>`)}</div>`}</section>
   </div>
   <aside class="pos-side well pad" aria-label="Table detail">${sel ? posPanel(sel) : emptyHTML('grid', 'Select a table', 'Pick a table on the floor plan to seat guests or open its ticket.')}</aside></div>`;
 }
@@ -1129,7 +1144,7 @@ function hqPromos() {
 function hqReports() {
   const t = T();
   const os = S.orders.filter((o) => o.tenantId === t.id);
-  if (!os.length) return `<div class="well">${emptyHTML('chart', 'No orders in this demo yet', 'Reports only count orders placed in this session. Place one online, at the POS or through the phone agent.', '<a class="btn btn--primary" href="#order">Place an order</a>')}</div>`;
+  if (!os.length) return `<div class="well">${emptyHTML('chart', 'No orders in this demo yet', 'Reports only count orders placed in this session. Place one online, at the POS or through the phone agent.', `<a class="btn btn--primary" href="${GUEST}#order">Open the ordering site</a>`)}</div>`;
   const sum = r2(os.reduce((a, o) => a + o.totals.total, 0));
   const by = (k, labels) => Object.entries(os.reduce((a, o) => { const key = o[k]; a[key] = a[key] || { n: 0, v: 0 }; a[key].n++; a[key].v += o.totals.total; return a; }, {})).map(([key, x]) => `<tr><td><b>${esc(labels(key))}</b></td><td class="num">${x.n}</td><td class="num">${money(r2(x.v))}</td></tr>`).join('');
   const taxTotal = r2(os.reduce((a, o) => a + o.totals.taxes.reduce((b, x) => b + x.amt, 0), 0));
@@ -1234,7 +1249,7 @@ function runCall() {
         const o = newOrder({ source: 'phone', label: 'pickup, Priya', lines, totals: tot, paid: false, payment: 'texted link', meta: { mode: 'pickup' } });
         o.events.push({ t: Date.now() + 2000, text: 'Paid by texted payment link' });
         setTimeout(() => { o.paid = true; save(); }, 2000);
-        toast(`Phone order #${o.no} is on the <a href="#kitchen">kitchen screen</a>.`);
+        toast(`Phone order #${o.no} is on the <a href="${STAFF}#kitchen">kitchen screen</a>.`);
         return `create_order → #${o.no} sent to kitchen. send_payment_link → texted, ${T().payments.online}.`;
       });
       push('agent', "Thanks Priya, it's with the kitchen. See you soon.");
@@ -1308,6 +1323,8 @@ document.addEventListener('click', (e) => {
   const tables = S.tables[keyTB()];
   const sel = tables && tables.find((x) => x.id === S.pos.sel);
   switch (a) {
+    case 'pin': { const v = ($('#pin').value || '').trim(); if (v === '1234') { try { sessionStorage.setItem('kl-staff', '1'); } catch (err) { /* ignore */ } $('#gate').hidden = true; route(); } else { $('#pin-h').textContent = 'That PIN is not right. Use 1234 in this demo.'; $('#pin').setAttribute('aria-invalid', 'true'); $('#pin').focus(); } return; }
+    case 'signout': try { sessionStorage.removeItem('kl-staff'); } catch (err) { /* ignore */ } $('#gate').hidden = false; $('#pin').value = ''; return;
     case 'reset': try { localStorage.removeItem(STORE_KEY); } catch (err) { /* ignore */ } S = freshState(); current = null; route(); toast('Demo data reset.'); return;
     case 'mode': S.mode = el.dataset.v; break;
     case 'jump': { e.preventDefault(); const tg = document.getElementById(el.dataset.to); if (tg) tg.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }); return; }
@@ -1335,7 +1352,7 @@ document.addEventListener('click', (e) => {
     case 'seat-booking': { const bk = S.bookings.find((x) => x.id === el.dataset.id); const fit = FLOOR_A.filter((f) => f.seats >= bk.party && tables.find((x) => x.id === f.id).state === 'free').sort((p, q) => p.seats - q.seats)[0]; if (!fit) { toast(`No free table fits ${bk.party}. Join tables or wait for one to clear.`); return; } const tb = tables.find((x) => x.id === fit.id); tb.state = 'seated'; tb.guests = bk.party; bk.status = 'seated'; S.pos.sel = tb.id; toast(`${esc(bk.name)} seated at ${tb.id}.`); break; }
     case 'padd': { const m = item(el.dataset.id); const ex = sel.pending.find((l) => l.id === m.id); if (ex) ex.qty++; else sel.pending.push({ id: m.id, name: m.name, qty: 1, unit: m.price, mods: [] }); break; }
     case 'pqty': { const l = sel.pending[+el.dataset.i]; l.qty += +el.dataset.d; if (l.qty <= 0) sel.pending.splice(+el.dataset.i, 1); break; }
-    case 'send': { const lines = sel.pending.map((l) => ({ name: l.name, qty: l.qty, unit: l.unit, mods: l.mods })); const o = newOrder({ source: 'table', label: 'table ' + sel.id, lines, totals: priceLines(t, lines, { mode: 'dine-in' }), paid: false, meta: { mode: 'dine-in' } }); sel.orderIds.push(o.id); sel.pending = []; sel.state = 'ordered'; toast(`Table ${sel.id} sent to the <a href="#kitchen">kitchen</a>, ticket #${o.no}.`); break; }
+    case 'send': { const lines = sel.pending.map((l) => ({ name: l.name, qty: l.qty, unit: l.unit, mods: l.mods })); const o = newOrder({ source: 'table', label: 'table ' + sel.id, lines, totals: priceLines(t, lines, { mode: 'dine-in' }), paid: false, meta: { mode: 'dine-in' } }); sel.orderIds.push(o.id); sel.pending = []; sel.state = 'ordered'; toast(`Table ${sel.id} sent to the <a href="${STAFF}#kitchen">kitchen</a>, ticket #${o.no}.`); break; }
     case 'bill': if (sel.state === 'bill') S.pos.paying = true; else { sel.state = 'bill'; toast(`Bill for ${sel.id} printed.`); } break;
     case 'pay-cancel': S.pos.paying = false; break;
     case 'split': S.pos.split = Math.max(1, Math.min(sel.guests || 12, S.pos.split + +el.dataset.d)); break;
@@ -1350,6 +1367,7 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('submit', (e) => {
   const f = e.target; e.preventDefault();
+  if (f.id === 'gate-form') { $('[data-action="pin"]').click(); return; }
   if (f.id === 'checkout') return doPay('card');
   if (f.id === 'book-form') return doBook(f);
   if (f.id === 'promo-form') return doPromo(f);
@@ -1423,6 +1441,15 @@ function tick() {
 setInterval(tick, 1000);
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { const c = $('#cart.is-open'); if (c) c.classList.remove('is-open'); } });
 window.addEventListener('hashchange', route);
+window.addEventListener('storage', (e) => {
+  if (e.key !== STORE_KEY || !e.newValue) return;
+  const typing = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  const dlgOpen = $('#item-dlg') && $('#item-dlg').open;
+  try { const next = JSON.parse(e.newValue); const keep = APP === 'guest' ? { cart: S.cart, checkout: S.checkout, book: S.book, step: S.step, trackId: S.trackId, mode: S.mode, promo: S.promo } : { pos: S.pos, voice: S.voice, hqTab: S.hqTab }; S = Object.assign(next, keep); } catch (err) { return; }
+  if (!typing && !dlgOpen && !(S.voice && S.voice.running)) render();
+  else updateBadge();
+});
+if (APP === 'staff') { let ok = false; try { ok = sessionStorage.getItem('kl-staff') === '1'; } catch (e) { ok = false; } if (!ok) { const g = $('#gate'); if (g) g.hidden = false; } }
 { const nj = document.getElementById('nojs'); if (nj) nj.remove(); const rl = document.getElementById('reset-link'); if (rl) rl.hidden = false; }
 route();
 })();
